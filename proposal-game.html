@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Choice</title>
+  <style>
+    :root{--bg:#080914;--fg:#f7ecff;--glow:#d96bff;--warm:#ff7ab6}
+    *{box-sizing:border-box}html,body{margin:0;height:100%;font-family:ui-sans-serif,system-ui}
+    body{background:radial-gradient(circle at 20% 10%,#1b1f3a 0,#090b18 40%,#06070f 100%);color:var(--fg);overflow:hidden}
+    .v{position:fixed;inset:0;display:grid;place-items:center;padding:24px;opacity:0;transform:translateY(12px);pointer-events:none;transition:.6s}
+    .v.show{opacity:1;transform:none;pointer-events:auto}
+    .card{width:min(760px,92vw);max-height:92vh;overflow:auto;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:28px;backdrop-filter:blur(8px)}
+    h1,h2,p{margin:0 0 12px} .dim{opacity:.8}
+    .btn{padding:12px 18px;border:1px solid #ffffff30;background:#ffffff12;color:var(--fg);border-radius:12px;cursor:pointer}
+    .btn:hover{box-shadow:0 0 20px #ffffff35}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .perk{padding:14px;border:1px solid #ffffff2e;border-radius:12px;cursor:pointer;background:#ffffff08;color:var(--fg)}
+    .perk strong,.perk p{color:var(--fg)}
+    .perk.locked{filter:grayscale(1);opacity:.6}
+    .perk.done{border-color:var(--glow);box-shadow:0 0 18px #d96bff55}
+    .meter{height:10px;border-radius:99px;background:#ffffff18;overflow:hidden}
+    .fill{height:100%;width:0;background:linear-gradient(90deg,var(--glow),var(--warm));transition:.5s}
+    .type{min-height:52px}
+    .big{font-size:clamp(26px,5vw,46px)}
+    .heart{
+      position:fixed;
+      top:-24px;
+      z-index:9999;
+      pointer-events:none;
+      user-select:none;
+      animation:fall linear forwards;
+      text-shadow:0 0 8px rgba(255,122,182,.65);
+    }
+    @keyframes fall{
+      to{transform:translateY(110vh) rotate(360deg);opacity:0}
+    }
+    @media (max-width: 640px){
+      .v{padding:14px}
+      .card{
+        width:100%;
+        max-height:94vh;
+        padding:18px 14px;
+        border-radius:14px;
+      }
+      .grid{grid-template-columns:1fr}
+      .btn{
+        width:100%;
+        padding:12px 14px;
+      }
+      #s3 .card > div{
+        flex-direction:column;
+        align-items:stretch;
+      }
+      h1,h2,p{margin:0 0 10px}
+      .type{min-height:64px}
+    }
+  </style>
+</head>
+<body>
+  <section id="s1" class="v show">
+    <div class="card">
+      <h1 class="big">Today, a secret unfolds.</h1>
+      <p id="t" class="type dim"></p>
+      <button class="btn" id="begin">Begin</button>
+    </div>
+  </section>
+
+  <section id="s2" class="v">
+    <div class="card">
+      <h2>Unlock my perks</h2>
+      <p class="dim">Open each one to reveal your future teammate.</p>
+      <div id="grid" class="grid"></div>
+      <p style="margin:14px 0 8px">Compatibility</p>
+      <div class="meter"><div id="fill" class="fill"></div></div>
+      <button class="btn" id="finalBtn" style="margin-top:14px" disabled>Reveal Final Question</button>
+    </div>
+  </section>
+
+  <section id="s3" class="v">
+    <div class="card" id="finalCard">
+      <h2 class="big" id="finalQuestion">Will you be me pasandida stree?</h2>
+      <p class="dim">I promise cooking, caring, poems, laughs, and a safe heart.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn" id="yes">Yes</button>
+        <button class="btn" id="more">Need one more reason</button>
+      </div>
+      <p id="bonus" style="margin-top:14px;color:#ffb3d8"></p>
+    </div>
+  </section>
+
+  <script>
+    const perks=[
+      {k:"Cooking",v:"I will turn your cravings into comfort meals."},
+      {k:"Caring",v:"I notice little things and show up when it matters."},
+      {k:"Poems",v:"I will write you tiny poems for big days and bad days."},
+      {k:"Loyalty",v:"Your trust will be my daily responsibility."},
+      {k:"Humor",v:"I will make hard days lighter with silly joy."},
+      {k:"Future",v:"I build with intention, not temporary excitement."}
+    ];
+    const typeText="Not all love stories start loudly. Some begin with one brave click.";
+    const romanticLines=[
+      "Because my favorite place in the world is wherever you are.",
+      "Because your smile can fix a day I thought was broken.",
+      "Because life feels kinder when I hear your voice.",
+      "Because I want to hold your hand through every season.",
+      "Because your happiness quietly became my priority.",
+      "Because with you, ordinary moments feel magical.",
+      "Because your laugh is my favorite song.",
+      "Because even silence feels beautiful with you.",
+      "Because I see home in your eyes.",
+      "Because I want to be your peace after every storm.",
+      "Because loving you feels like the easiest truth.",
+      "Because you make my heart feel safe.",
+      "Because you are the best part of my every day.",
+      "Because my future looks brighter with you in it.",
+      "Because you inspire me to be a better man.",
+      "Because I still get excited every time I see you.",
+      "Because your presence turns moments into memories.",
+      "Because I want to celebrate all your little wins.",
+      "Because your heart is my favorite place to rest.",
+      "Because I want to choose you in every lifetime.",
+      "Because your kindness makes me fall harder every day.",
+      "Because your name is my favorite thought.",
+      "Because I want to grow old while loving you loudly.",
+      "Because with you, forever sounds too short.",
+      "Because you make me believe in beautiful endings.",
+      "Because you make even my worst days softer.",
+      "Because your eyes say everything my heart needs.",
+      "Because I want to protect your smile forever.",
+      "Because I feel lucky just knowing you.",
+      "Because you are my calm in chaos.",
+      "Because your love feels like sunlight after rain.",
+      "Because I want to be your safe place always.",
+      "Because being with you feels like destiny and choice.",
+      "Because your warmth melts every fear I carry.",
+      "Because I want to write our story for a lifetime.",
+      "Because your love makes me fearless.",
+      "Because I miss you even before goodbye.",
+      "Because my heart recognized you first.",
+      "Because your joy is my favorite mission.",
+      "Because I want to dance with you in kitchens and in life.",
+      "Because you are my favorite hello and hardest goodbye.",
+      "Because I want to be the reason you feel adored.",
+      "Because your soul is stunning.",
+      "Because I want to build a life that hugs your dreams.",
+      "Because your love makes me feel complete.",
+      "Because you make forever feel possible.",
+      "Because your trust is the treasure I protect most.",
+      "Because my heart finds its rhythm with yours.",
+      "Because I want to laugh with you until we are old.",
+      "Because you make me believe in miracles.",
+      "Because your hugs feel like homecoming.",
+      "Because I want to be your partner in every adventure.",
+      "Because your strength and softness amaze me.",
+      "Because I adore the way you see the world.",
+      "Because I want to love you in all your moods.",
+      "Because your happiness lights up my world.",
+      "Because your hand fits mine like it was meant to.",
+      "Because you are my once-in-a-lifetime kind of person.",
+      "Because loving you is my favorite habit.",
+      "Because I want to be your biggest cheerleader forever.",
+      "Because your heart teaches mine how to love better.",
+      "Because every path feels right when it leads to you.",
+      "Because I want to keep choosing us, every day.",
+      "Because your smile is my favorite view.",
+      "Because you make me want to dream bigger.",
+      "Because I want to be there for every chapter of your life.",
+      "Because your presence turns fear into courage.",
+      "Because I want to kiss your forehead before every hard day.",
+      "Because your love feels like a blessing.",
+      "Because I want to be your comfort and your celebration.",
+      "Because your voice can quiet any storm in me.",
+      "Because I love the way your mind shines.",
+      "Because with you, I found what my heart searched for.",
+      "Because I want to make you feel cherished forever.",
+      "Because your love is my favorite destination.",
+      "Because you make simple days feel extraordinary.",
+      "Because I want to be your shoulder and your joy.",
+      "Because your smile is my daily miracle.",
+      "Because you are the reason I believe in soulmates.",
+      "Because I want to wake up grateful for you forever.",
+      "Because your love feels like poetry I can live in.",
+      "Because I want to spoil your heart with loyalty.",
+      "Because your affection is my safest place.",
+      "Because you make my world gentler and brighter.",
+      "Because I want to stand beside you, not ahead of you.",
+      "Because your love makes me feel endlessly grateful.",
+      "Because I want to memorize every version of your smile.",
+      "Because your joy feels like my own.",
+      "Because you are my favorite chapter and plot twist.",
+      "Because I want to protect your peace forever.",
+      "Because every dream is sweeter when it includes you.",
+      "Because I love who I am when I am with you.",
+      "Because your existence makes my life richer.",
+      "Because I want to keep discovering you forever.",
+      "Because your love is my beautiful certainty.",
+      "Because you are my today and all my tomorrows.",
+      "Because I want to make you feel loved, every single day.",
+      "Because your heart is where mine belongs.",
+      "Because you are the best decision my heart ever made."
+    ];
+    let i=0,done=0;
+    const t=setInterval(()=>{document.getElementById("t").textContent=typeText.slice(0,++i);if(i>=typeText.length)clearInterval(t)},28);
+    const show=id=>document.querySelectorAll(".v").forEach(v=>v.classList.toggle("show",v.id===id));
+    document.getElementById("begin").onclick=()=>show("s2");
+    const grid=document.getElementById("grid"),fill=document.getElementById("fill"),finalBtn=document.getElementById("finalBtn");
+    perks.forEach((p,idx)=>{
+      const d=document.createElement("button");
+      d.className="perk locked";
+      d.innerHTML=`<strong>Locked</strong><p class="dim">Tap to reveal</p>`;
+      d.onclick=()=>{
+        if(d.classList.contains("done"))return;
+        d.classList.remove("locked");d.classList.add("done");
+        d.innerHTML=`<strong>${p.k}</strong><p>${p.v}</p>`;
+        done++;fill.style.width=(done/perks.length*100)+"%";
+        if(done===perks.length)finalBtn.disabled=false;
+      };
+      grid.appendChild(d);
+    });
+    finalBtn.onclick=()=>show("s3");
+    let lastLineIndex=-1;
+    document.getElementById("more").onclick=()=>{
+      let idx=Math.floor(Math.random()*romanticLines.length);
+      if(romanticLines.length>1){
+        while(idx===lastLineIndex){
+          idx=Math.floor(Math.random()*romanticLines.length);
+        }
+      }
+      lastLineIndex=idx;
+      document.getElementById("bonus").textContent=`Bonus reason: ${romanticLines[idx]}`;
+    };
+    function rainHearts(count=45){
+      for(let n=0;n<count;n++){
+        const heart=document.createElement("span");
+        heart.className="heart";
+        heart.textContent=Math.random()>0.25?"💖":"💗";
+        heart.style.left=Math.random()*100+"vw";
+        heart.style.fontSize=(12+Math.random()*16)+"px";
+        heart.style.opacity=(0.65+Math.random()*0.35).toFixed(2);
+        heart.style.animationDuration=(2.8+Math.random()*2.6).toFixed(2)+"s";
+        heart.style.animationDelay=(Math.random()*0.8).toFixed(2)+"s";
+        document.body.appendChild(heart);
+        heart.addEventListener("animationend",()=>heart.remove());
+      }
+    }
+    let heartRainTimer=null;
+    function startInfiniteHeartRain(){
+      if(heartRainTimer!==null)return;
+      heartRainTimer=setInterval(()=>rainHearts(4),220);
+    }
+    document.getElementById("yes").onclick=()=>{
+      document.body.style.background="radial-gradient(circle at 50% 20%,#3a103f 0,#1a0e2d 45%,#090915 100%)";
+      document.getElementById("finalCard").innerHTML='<h2 class="big" style="margin-bottom:16px">Badhai ho! Sharma Ji aaye hai aapke jeevan mein ❤️</h2><p class="dim" style="font-size:clamp(18px,2.8vw,28px);line-height:1.4">Jada Jaankari ke liye abhi call karke "I love you 💖" bole 👀</p>';
+      startInfiniteHeartRain();
+      setTimeout(()=>alert("You just made me the happiest human alive 💖."),350);
+    };
+  </script>
+</body>
+</html>
