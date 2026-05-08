@@ -62,7 +62,7 @@
     <div class="card">
       <h1 class="big">Sharma Ji ka dil aaj kuch khaas kehna chahta hai.</h1>
       <p id="t" class="type dim"></p>
-      <button class="btn" id="begin">Begin</button>
+      <button class="btn" id="begin">Shuru karte hai</button>
     </div>
   </section>
 
@@ -91,12 +91,12 @@
 
   <script>
     const perks=[
-      {k:"Cooking",v:"I will turn your cravings into comfort meals."},
-      {k:"Caring",v:"I notice little things and show up when it matters."},
-      {k:"Poems",v:"I will write you tiny poems for big days and bad days."},
-      {k:"Loyalty",v:"Your trust will be my daily responsibility."},
-      {k:"Humor",v:"I will make hard days lighter with silly joy."},
-      {k:"Future",v:"I build with intention, not temporary excitement."}
+      {k:"Pyaar Bhari Rasoi",v:"Aapki har craving ko garma-garam pyaar se banaunga."},
+      {k:"Khayaal",v:"Aapki chhoti se chhoti baat bhi dhyan se samajhunga."},
+      {k:"Shayari",v:"Achhe din ho ya mushkil din, aapke liye dil se alfaaz likhunga."},
+      {k:"Wafadari",v:"Aapka bharosa meri roz ki zimmedari rahega."},
+      {k:"Hansi-Khushi",v:"Har udaas pal ko muskuraahat mein badalne ki koshish karunga."},
+      {k:"Saath Wala Future",v:"Sirf aaj nahi, aapke saath ek khoobsurat kal banana chahta hoon."}
     ];
     const typeText="Har khoobsurat kahani ek himmat bhare click se shuru hoti hai... aur is baar Sharma Ji ki kahani hai. Neeche diye gate button ko apne sundar hatho se click karke usko dhanya karein";
     const romanticLines=[
@@ -208,7 +208,7 @@
     perks.forEach((p,idx)=>{
       const d=document.createElement("button");
       d.className="perk locked";
-      d.innerHTML=`<strong>Locked</strong><p class="dim">Tap to reveal</p>`;
+      d.innerHTML=`<strong>Locked</strong><p class="dim">Isko unlock karne ke liye tap karein</p>`;
       d.onclick=()=>{
         if(d.classList.contains("done"))return;
         d.classList.remove("locked");d.classList.add("done");
